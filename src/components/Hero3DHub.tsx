@@ -87,16 +87,17 @@ export default function Hero3DHub() {
 
       {/* Foreground giant typography (in front of 3D) */}
       <motion.h1
-        style={{ x: textX, y: textY }}
+        style={{ x: textX, y: textY, mixBlendMode: "difference" }}
         className="pointer-events-none absolute inset-0 z-20 flex select-none items-center justify-center"
       >
         <span
           key={wordIndex}
-          className="block text-center font-extralight leading-[0.85] text-black animate-[fadeWord_2.8s_ease-in-out_infinite]"
+          className="block text-center font-extralight leading-[0.85] animate-[fadeWord_2.8s_ease-in-out_infinite]"
           style={{
             fontSize: "clamp(80px, 18vw, 280px)",
             letterSpacing: "-0.04em",
             fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+            color: "#FFFFFF",
           }}
         >
           {WORDS[wordIndex]}
