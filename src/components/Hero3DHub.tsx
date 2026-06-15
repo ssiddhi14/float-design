@@ -76,9 +76,19 @@ export default function Hero3DHub() {
       </nav>
 
       {/* Background giant typography */}
+      {/* 3D Canvas (behind text) */}
+      <div className="absolute inset-0 z-10">
+        {mounted && (
+          <Suspense fallback={null}>
+            <HeroScene mouse={mouse} />
+          </Suspense>
+        )}
+      </div>
+
+      {/* Foreground giant typography (in front of 3D) */}
       <motion.h1
         style={{ x: textX, y: textY }}
-        className="pointer-events-none absolute inset-0 z-10 flex select-none items-center justify-center"
+        className="pointer-events-none absolute inset-0 z-20 flex select-none items-center justify-center"
       >
         <span
           key={wordIndex}
@@ -92,15 +102,6 @@ export default function Hero3DHub() {
           {WORDS[wordIndex]}
         </span>
       </motion.h1>
-
-      {/* 3D Canvas */}
-      <div className="absolute inset-0 z-20">
-        {mounted && (
-          <Suspense fallback={null}>
-            <HeroScene mouse={mouse} />
-          </Suspense>
-        )}
-      </div>
 
       {/* Side meta */}
       <div className="pointer-events-none absolute bottom-8 left-6 z-30 md:left-12">
