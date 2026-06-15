@@ -1,29 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
+import Hero3DHub from "@/components/Hero3DHub";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "3D HUB — Think It. Design It. Print It." },
+      {
+        name: "description",
+        content:
+          "3D HUB is an immersive creative studio for 3D design, prototyping and printing. Think it, design it, print it.",
+      },
+      { property: "og:title", content: "3D HUB — Think It. Design It. Print It." },
+      {
+        property: "og:description",
+        content:
+          "An award-winning immersive 3D experience. Premium product storytelling for the next generation of makers.",
+      },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main>
+      <Hero3DHub />
+    </main>
   );
 }
