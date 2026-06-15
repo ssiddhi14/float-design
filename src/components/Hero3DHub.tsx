@@ -1,165 +1,155 @@
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
-const lerp = (a: number, b: number, n: number) => a + (b - a) * n;
+const HeroScene = lazy(() => import("./HeroScene"));
+
+const WORDS = ["THINK IT", "DESIGN IT", "PRINT IT"];
 
 export default function Hero3DHub() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const orbRef = useRef<HTMLDivElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const fgRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [wordIndex, setWordIndex] = useState(0);
+  const mouse = useRef({ x: 0, y: 0 });
 
-  const target = useRef({ x: 0, y: 0 });
-  const current = useRef({ x: 0, y: 0 });
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const smx = useSpring(mx, { stiffness: 60, damping: 18 });
+  const smy = useSpring(my, { stiffness: 60, damping: 18 });
+  const textX = useTransform(smx, (v) => v * 18);
+  const textY = useTransform(smy, (v) => v * 10);
 
   useEffect(() => {
+    setMounted(true);
+    const id = setInterval(() => setWordIndex((i) => (i + 1) % WORDS.length), 2800);
     const onMove = (e: MouseEvent) => {
-      const { innerWidth: w, innerHeight: h } = window;
-      target.current.x = (e.clientX - w / 2) / (w / 2);
-      target.current.y = (e.clientY - h / 2) / (h / 2);
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      mouse.current.x = x;
+      mouse.current.y = -y;
+      mx.set(x);
+      my.set(-y);
     };
     window.addEventListener("mousemove", onMove);
-
-    let raf = 0;
-    let t = 0;
-    const tick = () => {
-      t += 0.005;
-      current.current.x = lerp(current.current.x, target.current.x, 0.06);
-      current.current.y = lerp(current.current.y, target.current.y, 0.06);
-      const { x, y } = current.current;
-
-      // floating organic motion
-      const floatX = Math.sin(t) * 30;
-      const floatY = Math.cos(t * 0.8) * 24;
-
-      if (orbRef.current) {
-        orbRef.current.style.transform = `translate3d(${x * 120 + floatX}px, ${y * 120 + floatY}px, 0)`;
-      }
-      if (bgRef.current) {
-        bgRef.current.style.transform = `translate3d(${x * 20}px, ${y * 20}px, 0)`;
-      }
-      if (titleRef.current) {
-        titleRef.current.style.transform = `translate3d(${-x * 40}px, ${-y * 25}px, 0)`;
-      }
-      if (fgRef.current) {
-        fgRef.current.style.transform = `translate3d(${-x * 70}px, ${-y * 45}px, 0)`;
-      }
-
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-
-    // intro
-    gsap.fromTo(
-      ".hero-line",
-      { yPercent: 110, opacity: 0 },
-      { yPercent: 0, opacity: 1, duration: 1.4, ease: "expo.out", stagger: 0.12, delay: 0.2 }
-    );
-    gsap.fromTo(
-      ".hero-fg",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 1 }
-    );
-
     return () => {
+      clearInterval(id);
       window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [mx, my]);
 
   return (
     <section
-      ref={sectionRef}
-      className="relative h-screen w-full overflow-hidden"
-      style={{ background: "#DEE7F1" }}
+      className="relative w-full overflow-hidden"
+      style={{ height: "100vh", backgroundColor: "#DEE7F1" }}
     >
-      {/* Layer 1: ambient gradient background */}
-      <div
-        ref={bgRef}
-        className="absolute inset-[-10%] will-change-transform"
-        style={{
-          background:
-            "radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.7), transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(255,170,120,0.18), transparent 55%)",
-        }}
-        aria-hidden
-      />
+      {/* Navbar */}
+      <nav className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-6 md:px-12 md:py-7">
+        <div className="flex items-center gap-2">
+          <span className="text-[15px] font-semibold tracking-[0.28em] text-black">
+            3D
+          </span>
+          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#FF6B00" }} />
+          <span className="text-[15px] font-semibold tracking-[0.28em] text-black">
+            HUB
+          </span>
+        </div>
+        <ul className="hidden items-center gap-9 md:flex">
+          {["WORK", "PRODUCTS", "ABOUT", "LABS", "CONTACT"].map((item) => (
+            <li key={item}>
+              <a
+                href={`#${item.toLowerCase()}`}
+                className="group relative text-[12px] font-medium tracking-[0.22em] text-black transition-opacity hover:opacity-70"
+              >
+                {item}
+                <span
+                  className="absolute -bottom-1 left-0 h-px w-0 transition-all duration-500 group-hover:w-full"
+                  style={{ backgroundColor: "#FF6B00" }}
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
+        <button
+          className="hidden md:inline-flex items-center gap-2 rounded-full border border-black/20 px-4 py-2 text-[11px] font-medium tracking-[0.2em] text-black backdrop-blur transition-colors hover:border-black"
+        >
+          <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#FF6B00" }} />
+          LET'S TALK
+        </button>
+      </nav>
 
-      {/* Layer 2: glowing orb */}
-      <div
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-        aria-hidden
+      {/* Background giant typography */}
+      {/* 3D Canvas (behind text) */}
+      <div className="absolute inset-0 z-10">
+        {mounted && (
+          <Suspense fallback={null}>
+            <HeroScene mouse={mouse} />
+          </Suspense>
+        )}
+      </div>
+
+      {/* Foreground giant typography (in front of 3D) */}
+      <motion.h1
+        style={{ x: textX, y: textY, mixBlendMode: "difference" }}
+        className="pointer-events-none absolute inset-0 z-20 flex select-none items-center justify-center"
       >
-        <div
-          ref={orbRef}
-          className="will-change-transform"
+        <span
+          key={wordIndex}
+          className="block text-center font-extralight leading-[0.85] animate-[fadeWord_2.8s_ease-in-out_infinite]"
           style={{
-            width: "60vmin",
-            height: "60vmin",
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle at 35% 35%, rgba(255,255,255,0.95) 0%, rgba(255,180,130,0.55) 35%, rgba(255,107,0,0.25) 60%, rgba(222,231,241,0) 75%)",
-            filter: "blur(40px)",
-            mixBlendMode: "screen",
-          }}
-        />
-      </div>
-
-      {/* Layer 3: editorial typography */}
-      <div className="relative z-10 flex h-full items-center justify-center px-6">
-        <h1
-          ref={titleRef}
-          className="will-change-transform text-center font-semibold tracking-[-0.04em] leading-[0.85]"
-          style={{
-            color: "#000",
-            fontSize: "clamp(3.5rem, 16vw, 18rem)",
-            fontFamily: '"Playfair Display", "Times New Roman", serif',
+            fontSize: "clamp(80px, 18vw, 280px)",
+            letterSpacing: "-0.04em",
+            fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
+            color: "#FFFFFF",
           }}
         >
-          <span className="block overflow-hidden">
-            <span className="hero-line inline-block">Think it.</span>
-          </span>
-          <span className="block overflow-hidden">
-            <span className="hero-line inline-block italic" style={{ color: "#FF6B00" }}>
-              Design it.
-            </span>
-          </span>
-          <span className="block overflow-hidden">
-            <span className="hero-line inline-block">Print it.</span>
-          </span>
-        </h1>
+          {WORDS[wordIndex]}
+        </span>
+      </motion.h1>
+
+      {/* Side meta */}
+      <div className="pointer-events-none absolute bottom-8 left-6 z-30 md:left-12">
+        <p className="text-[10px] font-medium tracking-[0.3em] text-black/60">
+          [01] — IDEATION
+        </p>
+        <p className="mt-2 max-w-[220px] text-[11px] leading-relaxed text-black/70">
+          From concept to physical object. Crafted with precision, printed in 3D.
+        </p>
       </div>
 
-      {/* Layer 4: foreground UI */}
-      <div
-        ref={fgRef}
-        className="hero-fg pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-end justify-between p-8 will-change-transform md:p-12"
-      >
-        <div
-          className="pointer-events-auto rounded-full border border-white/40 bg-white/20 px-5 py-3 text-xs uppercase tracking-[0.25em] backdrop-blur-xl"
-          style={{ color: "#2D2D2D" }}
-        >
-          3D HUB · Studio
+      <div className="pointer-events-none absolute bottom-8 right-6 z-30 md:right-12">
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-medium tracking-[0.3em] text-black/60">
+            SCROLL
+          </span>
+          <span
+            className="block h-px w-12 origin-left animate-[scrollLine_2s_ease-in-out_infinite]"
+            style={{ backgroundColor: "#FF6B00" }}
+          />
         </div>
-        <div
-          className="pointer-events-auto max-w-xs text-right text-sm leading-relaxed"
-          style={{ color: "#2D2D2D" }}
-        >
-          A creative studio crafting tactile futures through immersive 3D design, prototyping & print.
+        <p className="mt-2 text-right text-[10px] font-medium tracking-[0.3em] text-black/60">
+          NOOMO × 3D HUB
+        </p>
+      </div>
+
+      {/* Status pill top center */}
+      <div className="absolute left-1/2 top-24 z-30 -translate-x-1/2 md:top-28">
+        <div className="flex items-center gap-2 rounded-full border border-black/15 bg-white/40 px-3.5 py-1.5 backdrop-blur-md">
+          <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#FF6B00" }} />
+          <span className="text-[10px] font-medium tracking-[0.28em] text-black">
+            NEW LAB / 2026
+          </span>
         </div>
       </div>
 
-      {/* top nav */}
-      <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between p-8 md:p-12">
-        <div className="text-sm font-medium tracking-[0.3em]" style={{ color: "#000" }}>
-          3D / HUB
-        </div>
-        <nav className="hidden gap-8 text-xs uppercase tracking-[0.25em] md:flex" style={{ color: "#2D2D2D" }}>
-          <a href="#work" className="hover:text-black">Work</a>
-          <a href="#studio" className="hover:text-black">Studio</a>
-          <a href="#contact" className="hover:text-black">Contact</a>
-        </nav>
-      </div>
+      {/* Local keyframes */}
+      <style>{`
+        @keyframes fadeWord {
+          0%, 100% { opacity: 0; transform: translateY(20px); filter: blur(8px); }
+          15%, 85% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes scrollLine {
+          0%, 100% { transform: scaleX(0.2); }
+          50% { transform: scaleX(1); }
+        }
+      `}</style>
     </section>
   );
 }
