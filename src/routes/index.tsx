@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Hero3DHub from "@/components/Hero3DHub";
 import InnovateSection from "@/components/InnovateSection";
+import InteractiveShowcase from "@/components/InteractiveShowcase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +28,7 @@ function Index() {
     <main>
       <Hero3DHub />
       <InnovateSection />
+      <InteractiveShowcase />
     </main>
   );
 }
