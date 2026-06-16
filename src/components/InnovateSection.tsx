@@ -24,7 +24,7 @@ export default function InnovateSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden"
+      className="relative w-full"
       style={{ backgroundColor: "#DEE7F1", height: "220vh" }}
     >
       {/* Sticky viewport */}
