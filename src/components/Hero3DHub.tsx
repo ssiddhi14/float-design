@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { Link } from "@tanstack/react-router";
 
 const HeroScene = lazy(() => import("./HeroScene"));
 
@@ -43,27 +44,42 @@ export default function Hero3DHub() {
       {/* Navbar */}
       <nav className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-6 md:px-12 md:py-7">
         <div className="flex items-center gap-2">
-          <span className="text-[15px] font-semibold tracking-[0.28em] text-black">
-            3D
-          </span>
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#FF6B00" }} />
-          <span className="text-[15px] font-semibold tracking-[0.28em] text-black">
-            HUB
-          </span>
+          <Link to="/" className="flex items-center gap-2">
+            <span className="text-[15px] font-semibold tracking-[0.28em] text-black">
+              3D
+            </span>
+            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#FF6B00" }} />
+            <span className="text-[15px] font-semibold tracking-[0.28em] text-black">
+              HUB
+            </span>
+          </Link>
         </div>
         <ul className="hidden items-center gap-9 md:flex">
           {["WORK", "PRODUCTS", "ABOUT", "LABS", "CONTACT"].map((item) => (
             <li key={item}>
-              <a
-                href={`#${item.toLowerCase()}`}
-                className="group relative text-[12px] font-medium tracking-[0.22em] text-black transition-opacity hover:opacity-70"
-              >
-                {item}
-                <span
-                  className="absolute -bottom-1 left-0 h-px w-0 transition-all duration-500 group-hover:w-full"
-                  style={{ backgroundColor: "#FF6B00" }}
-                />
-              </a>
+              {item === "ABOUT" ? (
+                <Link
+                  to="/about"
+                  className="group relative text-[12px] font-medium tracking-[0.22em] text-black transition-opacity hover:opacity-70"
+                >
+                  {item}
+                  <span
+                    className="absolute -bottom-1 left-0 h-px w-0 transition-all duration-500 group-hover:w-full"
+                    style={{ backgroundColor: "#FF6B00" }}
+                  />
+                </Link>
+              ) : (
+                <a
+                  href={`/#${item.toLowerCase()}`}
+                  className="group relative text-[12px] font-medium tracking-[0.22em] text-black transition-opacity hover:opacity-70"
+                >
+                  {item}
+                  <span
+                    className="absolute -bottom-1 left-0 h-px w-0 transition-all duration-500 group-hover:w-full"
+                    style={{ backgroundColor: "#FF6B00" }}
+                  />
+                </a>
+              )}
             </li>
           ))}
         </ul>

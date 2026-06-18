@@ -1,5 +1,17 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect, Suspense, lazy } from "react";
+
+const InnovateScene = lazy(() => import("./InnovateScene"));
+
+export const INNOVATE_CONTENT = {
+  // Phase 1 (Top Left Header & Top Right Paragraph)
+  topHeader: "CAN'T HAPPEN\nWITHOUT\nTEAM A.",
+  topParagraph: "Our agency combines storytelling craft with technical expertise to create work that connects emotionally and drives engagement.",
+
+  // Phase 2 (Bottom Left Header & Bottom Right Paragraph)
+  bottomHeader: "INNOVATE —\nWITH A\nHUMAN TOUCH.",
+  bottomParagraph: "Our design expertise and craftsmanship means we convert big, innovative ideas into powerful, accessible human experiences, which ignite emotions and provoke action."
+};
 
 export default function InnovateSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -7,6 +19,21 @@ export default function InnovateSection() {
     target: sectionRef,
     offset: ["start end", "end start"],
   });
+
+  const mouse = useRef({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const onMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      mouse.current.x = x;
+      mouse.current.y = -y;
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
 
   // Parallax for glow
   const glowY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
@@ -18,8 +45,7 @@ export default function InnovateSection() {
   const block1Opacity = useTransform(scrollYProgress, [0.25, 0.5], [1, 0]);
 
   // Block 2 (INNOVATE): rises up from below into place, then drifts up
-  const block2Y = useTransform(scrollYProgress, [0, 0.45, 0.85], ["25%", "0%", "-15%"]);
-  const block2Opacity = useTransform(scrollYProgress, [0.1, 0.35], [0, 1]);
+  const block2Y = useTransform(scrollYProgress, [0, 0.45, 0.85], ["25vh", "0vh", "-10vh"]);
 
   return (
     <section
@@ -29,6 +55,14 @@ export default function InnovateSection() {
     >
       {/* Sticky viewport */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
+        {/* Floating Glass Boxes in Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          {mounted && (
+            <Suspense fallback={null}>
+              <InnovateScene mouse={mouse} />
+            </Suspense>
+          )}
+        </div>
         {/* Soft cinematic glow with parallax */}
         <motion.div
           aria-hidden
@@ -61,51 +95,52 @@ export default function InnovateSection() {
                 lineHeight: 1.05,
               }}
             >
-              CAN&apos;T HAPPEN<br />
-              WITHOUT<br />
-              TEAM A.
+              {INNOVATE_CONTENT.topHeader.split("\n").map((line, idx) => (
+                <span key={idx}>
+                  {line}
+                  {idx < INNOVATE_CONTENT.topHeader.split("\n").length - 1 && <br />}
+                </span>
+              ))}
             </h3>
           </motion.div>
 
           <motion.p
             style={{ y: block1Y, opacity: block1Opacity }}
-            className="absolute right-6 top-12 max-w-xs text-sm leading-relaxed md:right-12 md:top-16 md:max-w-sm md:text-base"
+            className="absolute right-6 top-12 max-w-xs text-sm leading-relaxed md:right-12 md:top-16 md:max-w-sm md:text-base bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 md:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]"
           >
             <span style={{ color: "#2D2D2D" }}>
-              Our agency combines storytelling craft with technical expertise to
-              create work that connects emotionally and drives engagement.
+              {INNOVATE_CONTENT.topParagraph}
             </span>
           </motion.p>
 
           {/* BLOCK 2 — INNOVATE headline */}
-          <motion.div
-            style={{ y: block2Y, opacity: block2Opacity }}
-            className="absolute inset-x-6 bottom-12 md:inset-x-12 md:bottom-16"
-          >
+          <div className="absolute inset-x-6 bottom-12 md:inset-x-12 md:bottom-16">
             <div className="flex flex-col items-start justify-between gap-10 md:flex-row md:items-end">
-              <h2
+              <motion.h2
                 className="font-light tracking-tight text-black"
                 style={{
+                  y: block2Y,
                   fontSize: "clamp(2.75rem, 7.5vw, 7rem)",
                   lineHeight: 1.02,
                   letterSpacing: "-0.03em",
                 }}
               >
-                INNOVATE —<br />
-                WITH A<br />
-                HUMAN TOUCH.
-              </h2>
+                {INNOVATE_CONTENT.bottomHeader.split("\n").map((line, idx) => (
+                  <span key={idx}>
+                    {line}
+                    {idx < INNOVATE_CONTENT.bottomHeader.split("\n").length - 1 && <br />}
+                  </span>
+                ))}
+              </motion.h2>
 
               <p
-                className="max-w-xs text-sm leading-relaxed md:max-w-sm md:text-base"
+                className="max-w-xs text-sm leading-relaxed md:max-w-sm md:text-base bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 md:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]"
                 style={{ color: "#2D2D2D" }}
               >
-                Our design expertise and craftsmanship means we convert big,
-                innovative ideas into powerful, accessible human experiences,
-                which ignite emotions and provoke action.
+                {INNOVATE_CONTENT.bottomParagraph}
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

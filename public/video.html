@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Video Info</title>
+</head>
+<body>
+  <video id="vid" controls src="/pr.mp4" width="800" autoplay muted></video>
+  <h1 id="info" style="font-family: sans-serif; margin-top: 20px;">Loading metadata...</h1>
+  <script>
+    const v = document.getElementById('vid');
+    v.addEventListener('loadedmetadata', () => {
+      document.getElementById('info').innerText = "Duration: " + v.duration + "s, Dimensions: " + v.videoWidth + "x" + v.videoHeight;
+    });
+  </script>
+</body>
+</html>

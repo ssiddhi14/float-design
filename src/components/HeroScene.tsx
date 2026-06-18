@@ -54,11 +54,13 @@ function PrinterPen({ mouse }: { mouse: React.MutableRefObject<{ x: number; y: n
 
 function PixelArrow({ mouse }: { mouse: React.MutableRefObject<{ x: number; y: number }> }) {
   const ref = useRef<THREE.Group>(null);
-  useFrame(() => {
+  useFrame((state) => {
     if (!ref.current) return;
-    ref.current.position.x = -3.5 + mouse.current.x * 0.3;
-    ref.current.position.y = 0.5 + mouse.current.y * 0.2;
+    ref.current.position.x = -3.5 + mouse.current.x * 0.35;
+    // Organic floating on Y axis using sine wave
+    ref.current.position.y = 0.5 + mouse.current.y * 0.25 + Math.sin(state.clock.elapsedTime * 0.7) * 0.15;
     ref.current.rotation.y += 0.003;
+    ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.08;
   });
   const cubes: Array<[number, number]> = [
     [0, 0], [1, 0], [2, 0], [3, 0], [4, 0],
@@ -72,7 +74,16 @@ function PixelArrow({ mouse }: { mouse: React.MutableRefObject<{ x: number; y: n
       {cubes.map(([x, y], i) => (
         <mesh key={i} position={[x, y, 0]}>
           <boxGeometry args={[0.95, 0.95, 0.95]} />
-          <meshStandardMaterial color="#000000" metalness={0.3} roughness={0.6} />
+          <meshPhysicalMaterial
+            color="#ffffff"
+            transmission={0.9}
+            thickness={0.8}
+            roughness={0.12}
+            clearcoat={1.0}
+            clearcoatRoughness={0.1}
+            transparent
+            opacity={0.85}
+          />
         </mesh>
       ))}
     </group>
@@ -83,10 +94,11 @@ function PixelBlob({ mouse }: { mouse: React.MutableRefObject<{ x: number; y: nu
   const ref = useRef<THREE.Group>(null);
   useFrame((state) => {
     if (!ref.current) return;
-    ref.current.position.x = 3.4 + mouse.current.x * 0.3;
-    ref.current.position.y = -0.3 + mouse.current.y * 0.2;
-    ref.current.rotation.y = state.clock.elapsedTime * 0.2;
-    ref.current.rotation.x = state.clock.elapsedTime * 0.1;
+    ref.current.position.x = 3.4 + mouse.current.x * 0.35;
+    // Organic floating on Y axis using cosine wave
+    ref.current.position.y = -0.3 + mouse.current.y * 0.25 + Math.cos(state.clock.elapsedTime * 0.6) * 0.18;
+    ref.current.rotation.y = state.clock.elapsedTime * 0.15;
+    ref.current.rotation.x = state.clock.elapsedTime * 0.08;
   });
   return (
     <group ref={ref} position={[3.4, -0.3, -1]} scale={0.22}>
@@ -97,7 +109,33 @@ function PixelBlob({ mouse }: { mouse: React.MutableRefObject<{ x: number; y: nu
       ].map((p, i) => (
         <mesh key={i} position={p as [number, number, number]}>
           <boxGeometry args={[0.92, 0.92, 0.92]} />
-          <meshStandardMaterial color={i % 3 === 0 ? "#FF6B00" : "#000000"} metalness={0.4} roughness={0.5} />
+          {i % 3 === 0 ? (
+            // Glowing orange glass
+            <meshPhysicalMaterial
+              color="#FF6B00"
+              transmission={0.8}
+              thickness={0.8}
+              roughness={0.15}
+              clearcoat={1.0}
+              clearcoatRoughness={0.1}
+              transparent
+              opacity={0.85}
+              emissive="#FF6B00"
+              emissiveIntensity={0.3}
+            />
+          ) : (
+            // Clear glass
+            <meshPhysicalMaterial
+              color="#ffffff"
+              transmission={0.9}
+              thickness={0.8}
+              roughness={0.12}
+              clearcoat={1.0}
+              clearcoatRoughness={0.1}
+              transparent
+              opacity={0.85}
+            />
+          )}
         </mesh>
       ))}
     </group>
