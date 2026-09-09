@@ -10,6 +10,9 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  nitro: {
+    preset: "vercel",
+  },
   vite: {
     optimizeDeps: {
       include: ["three", "@react-three/fiber", "@react-three/drei", "framer-motion", "gsap", "ogl"],
