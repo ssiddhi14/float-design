@@ -138,7 +138,248 @@
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--bg-page);
+    color: var(--text-primary);
   }
+
+  /* Theme CSS variables */
+  :root {
+    --bg-primary:   #DEE7F1;
+    --bg-gradient:  linear-gradient(160deg, #F5F6FA 0%, #EAECF5 45%, #DCE2F2 100%);
+    --bg-page:      #F0F3FA;
+    --text-primary: #0a0a0a;
+    --text-muted:   rgba(10,10,20,0.5);
+    --text-soft:    rgba(10,10,20,0.4);
+    --card-bg:      rgba(255,255,255,0.6);
+    --card-border:  rgba(0,0,0,0.08);
+    --card-glass:   rgba(222,231,241,0.42);
+    --nav-bg:       rgba(245,246,250,0.85);
+    --nav-border:   rgba(0,0,0,0.05);
+    --input-bg:     rgba(255,255,255,0.55);
+    --glow-color:   rgba(160,185,240,0.32);
+    --accent:       #FF6B00;
+  }
+
+  html.dark {
+    --bg-primary:   #0e1018;
+    --bg-gradient:  linear-gradient(160deg, #111318 0%, #161a24 45%, #1a1f2e 100%);
+    --bg-page:      #0d0f14;
+    --text-primary: #eef0f8;
+    --text-muted:   rgba(220,225,245,0.5);
+    --text-soft:    rgba(220,225,245,0.35);
+    --card-bg:      rgba(255,255,255,0.06);
+    --card-border:  rgba(255,255,255,0.08);
+    --card-glass:   rgba(255,255,255,0.05);
+    --nav-bg:       rgba(14,16,24,0.88);
+    --nav-border:   rgba(255,255,255,0.06);
+    --input-bg:     rgba(255,255,255,0.07);
+    --glow-color:   rgba(255,107,0,0.12);
+    --accent:       #FF6B00;
+  }
+}
+
+/* Smooth dark/light theme transitions */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.22s;
+  transition-timing-function: ease;
+}
+
+/* ===== DARK THEME GLOBAL OVERRIDES ===== */
+/* These override inline hardcoded colors when html.dark is active */
+
+html.dark body {
+  background-color: #0e1018;
+  color: #eef0f8;
+}
+
+/* All sections/divs with the site's blue-gray background */
+html.dark [style*="background-color: rgb(222, 231, 241)"],
+html.dark [style*="background-color: #DEE7F1"],
+html.dark [style*="backgroundColor: #DEE7F1"] {
+  background-color: #0e1018 !important;
+}
+
+html.dark [style*="background: linear-gradient(160deg"],
+html.dark [style*="background: linear-gradient(155deg"] {
+  background: linear-gradient(160deg, #111318 0%, #161a24 45%, #1a1f2e 100%) !important;
+}
+
+/* ContactSection sticky stage */
+html.dark [style*="background: linear-gradient(160deg, #F5F6FA"] {
+  background: linear-gradient(160deg, #111318 0%, #161a24 45%, #1a1f2e 100%) !important;
+}
+
+/* ProductsStory background */
+html.dark [style*="background: #DEE7F1"] {
+  background: #0e1018 !important;
+}
+
+/* Page backgrounds */
+html.dark [style*="background-color: #ECEEF5"],
+html.dark [style*="backgroundColor: #ECEEF5"],
+html.dark [style*="background: #F2F4F9"],
+html.dark [style*="backgroundColor: #F2F4F9"],
+html.dark [style*="background-color: #F0F3FA"],
+html.dark [style*="backgroundColor: #F0F3FA"] {
+  background-color: #0d0f14 !important;
+}
+
+/* Glass cards */
+html.dark [style*="background: rgba(235, 240, 248"],
+html.dark [style*="background: rgba(222, 231, 241"],
+html.dark [style*="background: rgba(255, 255, 255"] {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Text colors - primary dark text to light */
+html.dark [style*="color: #0a0a0a"],
+html.dark [style*="color: #0c0c14"],
+html.dark [style*="color: rgb(10, 10, 20)"] {
+  color: #eef0f8 !important;
+}
+
+/* Muted text */
+html.dark [style*="color: rgba(10,10,20,0.65)"],
+html.dark [style*="color: rgba(10,10,20,0.62)"],
+html.dark [style*="color: rgba(10,10,20,0.5)"],
+html.dark [style*="color: rgba(12,12,20,0.5)"],
+html.dark [style*="color: rgba(12,12,20,0.4)"] {
+  color: rgba(220,225,245,0.5) !important;
+}
+
+/* Headings - black to near-white */
+html.dark h1[style*="color: #0a0a0a"],
+html.dark h2[style*="color: #0a0a0a"],
+html.dark h3[style*="color: #0a0a0a"],
+html.dark p[style*="color: #0a0a0a"],
+html.dark span[style*="color: #0a0a0a"] {
+  color: #eef0f8 !important;
+}
+
+/* Navbar backgrounds */
+html.dark nav[style*="background: rgba(222,231,241"],
+html.dark nav[style*="background: rgba(245,246,250"] {
+  background: rgba(14,16,24,0.92) !important;
+  border-bottom-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Form inputs */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background: rgba(255,255,255,0.07) !important;
+  color: #eef0f8 !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: rgba(220,225,245,0.3) !important;
+}
+
+/* Borders */
+html.dark [style*="border: 1px solid rgba(0,0,0"] {
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+html.dark [style*="border: 1px dashed rgba(0,0,0"] {
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+/* Dividers */
+html.dark [style*="background: rgba(0,0,0,0.06)"],
+html.dark [style*="background: rgba(0,0,0,0.08)"] {
+  background: rgba(255,255,255,0.08) !important;
+}
+
+/* About/Work page heading text */
+html.dark .text-black {
+  color: #eef0f8 !important;
+}
+
+html.dark .text-black\/40,
+html.dark .text-black\/45,
+html.dark .text-black\/50,
+html.dark .text-black\/55,
+html.dark .text-black\/60 {
+  color: rgba(220,225,245,0.45) !important;
+}
+
+html.dark .text-black\/65,
+html.dark .text-black\/70,
+html.dark .text-black\/80,
+html.dark .text-black\/85,
+html.dark .text-black\/88 {
+  color: rgba(220,225,245,0.7) !important;
+}
+
+/* CAN'T HAPPEN heading */
+html.dark .font-black.text-black,
+html.dark .font-black.uppercase.text-black {
+  color: #eef0f8 !important;
+}
+
+/* More targeted dark overrides using sticky/relative sections */
+html.dark .sticky,
+html.dark section.relative,
+html.dark main {
+  color: #eef0f8;
+}
+
+html.dark .bg-\[\#DEE7F1\] {
+  background-color: #0e1018 !important;
+}
+
+/* Force all divs with inline DEE7F1 background */
+html.dark div[style*="DEE7F1"] {
+  background-color: #0e1018 !important;
+}
+html.dark section[style*="DEE7F1"] {
+  background-color: #0e1018 !important;
+}
+
+/* ContactSection / ProductsStory containers */
+html.dark div[style*="F5F6FA"],
+html.dark div[style*="EAECF5"],
+html.dark div[style*="DCE2F2"],
+html.dark div[style*="F0F3FA"],
+html.dark div[style*="F2F4F9"],
+html.dark div[style*="ECEEF5"] {
+  background: #111318 !important;
+}
+
+/* Any sticky top-0 viewport */
+html.dark div[style*="sticky"] {
+  background: #111318 !important;
+}
+
+/* Text in all page elements */
+html.dark div[style*="color: #0a0a0a"],
+html.dark span[style*="color: #0a0a0a"],
+html.dark p[style*="color: #0a0a0a"],
+html.dark h1[style*="color: #0a0a0a"],
+html.dark h2[style*="color: #0a0a0a"] {
+  color: #eef0f8 !important;
+}
+html.dark div[style*="color: #0c0c14"],
+html.dark span[style*="color: #0c0c14"],
+html.dark p[style*="color: #0c0c14"],
+html.dark h1[style*="color: #0c0c14"],
+html.dark h2[style*="color: #0c0c14"] {
+  color: #eef0f8 !important;
+}
+
+/* Direct element targeting for dark mode */
+html.dark .dark-page-bg {
+  background: #0e1018 !important;
+  color: #eef0f8 !important;
+}
+html.dark .dark-card-bg {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+html.dark .dark-gradient-bg {
+  background: linear-gradient(160deg, #111318 0%, #161a24 45%, #1a1f2e 100%) !important;
 }

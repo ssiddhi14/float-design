@@ -1,34 +1,208 @@
-import { createFileRoute } from "@tanstack/react-router";
-import Hero3DHub from "@/components/Hero3DHub";
-import InnovateSection from "@/components/InnovateSection";
-import InteractiveShowcase from "@/components/InteractiveShowcase";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import ContactSection from "@/components/ContactSection";
+import ProductsStory from "@/components/ProductsStory";
+import { About } from "@/routes/about";
+import { getUser, logout, getCartCount } from "@/lib/store";
+import { getTheme, toggleTheme, applyTheme } from "@/lib/theme";
+
+const HeroScene = lazy(() => import("@/components/HeroScene"));
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "3D HUB — Think It. Design It. Print It." },
+      { title: "3D HUB - Think It. Design It. Print It." },
+      { name: "description", content: "3D HUB is an immersive creative studio for 3D design, prototyping and printing." },
+    ],
+    links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
-        name: "description",
-        content:
-          "3D HUB is an immersive creative studio for 3D design, prototyping and printing. Think it, design it, print it.",
-      },
-      { property: "og:title", content: "3D HUB — Think It. Design It. Print It." },
-      {
-        property: "og:description",
-        content:
-          "An award-winning immersive 3D experience. Premium product storytelling for the next generation of makers.",
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700&display=swap",
       },
     ],
   }),
   component: Index,
 });
 
+// -- Navbar --------------------------------------------------------------
+
+function Navbar({ active }: { active?: string }) {
+  const [user, setUser] = useState(getUser());
+  const [cartCount, setCartCount] = useState(getCartCount());
+  const [isDark, setIsDark] = useState(getTheme() === "dark");
+
+  useEffect(() => {
+    applyTheme(getTheme());
+    const onAuth = () => setUser(getUser());
+    const onCart = () => setCartCount(getCartCount());
+    const onTheme = () => setIsDark(getTheme() === "dark");
+    window.addEventListener("auth-updated", onAuth);
+    window.addEventListener("cart-updated", onCart);
+    window.addEventListener("theme-updated", onTheme);
+    return () => {
+      window.removeEventListener("auth-updated", onAuth);
+      window.removeEventListener("cart-updated", onCart);
+      window.removeEventListener("theme-updated", onTheme);
+    };
+  }, []);
+
+  return (
+    <nav className="absolute inset-x-0 top-0 z-40 flex items-center justify-between px-8 py-7 md:px-14">
+      <Link to="/" className="flex items-center gap-2">
+        <span className="text-[15px] font-semibold tracking-[0.28em] text-black">3D</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-[#FF6B00]" />
+        <span className="text-[15px] font-semibold tracking-[0.28em] text-black">HUB</span>
+      </Link>
+      <ul className="hidden items-center gap-9 md:flex">
+        {[
+          { label: "HOME", to: "/" as const },
+          { label: "SHOP", to: "/shop" as const },
+          { label: "CONTACT US", to: "/contact-us" as const },
+        ].map(({ label, to }) => (
+          <li key={label} style={{ position: "relative" }}>
+            <Link to={to} className="group relative text-[12px] font-medium tracking-[0.22em] text-black transition-opacity hover:opacity-70">
+              {label}
+              {((label === "HOME" && active === "HOME") || (label === "SHOP" && active === "SHOP") || (label === "CONTACT US" && active === "CONTACT-US"))
+                ? <span className="absolute -bottom-1 left-0 h-px w-full bg-[#FF6B00]" />
+                : <span className="absolute -bottom-1 left-0 h-px w-0 bg-[#FF6B00] transition-all duration-500 group-hover:w-full" />
+              }
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <div className="hidden md:flex items-center gap-3">
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={isDark ? "Switch to light" : "Switch to dark"}
+          className="rounded-full border border-black/20 p-2 transition-colors hover:border-black"
+          style={{ background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)", borderColor: isDark ? "rgba(255,255,255,0.15)" : undefined }}
+        >
+          {isDark ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#eef0f8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+          )}
+        </button>
+        {/* Cart */}
+        <Link to="/cart"
+          style={{ position: "relative", textDecoration: "none", padding: "7px 14px", border: "1px solid rgba(0,0,0,0.15)", borderRadius: 9999, fontSize: 11, fontWeight: 600, letterSpacing: "0.18em", color: isDark ? "#eef0f8" : "#0a0a0a", display: "flex", alignItems: "center", gap: 6 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+          CART
+          {cartCount > 0 && (
+            <span style={{ width: 17, height: 17, borderRadius: "50%", background: "#FF6B00", color: "#fff", fontSize: 8, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+              {cartCount}
+            </span>
+          )}
+        </Link>
+        {/* Auth */}
+        {user ? (
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-medium tracking-[0.08em] text-black">Hello, {user.firstName}</span>
+            <button
+              onClick={() => { logout(); setUser(null); window.dispatchEvent(new Event("auth-updated")); }}
+              className="rounded-full border border-black/20 px-3 py-1.5 text-[10px] font-medium tracking-[0.18em] text-black/55 hover:text-black hover:border-black transition-colors"
+            >
+              LOGOUT
+            </button>
+          </div>
+        ) : (
+          <Link to="/login" className="inline-flex items-center rounded-full px-4 py-2 text-[11px] font-medium tracking-[0.2em] transition-colors" style={{ background: "#0a0a0a", color: "#fff", textDecoration: "none" }}>
+            LOGIN / SIGN UP
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+// -- Hero ----------------------------------------------------------------
+
+const HERO_WORDS = ["THINK IT", "DESIGN IT", "PRINT IT"];
+
+function HeroSection() {
+  const [mounted, setMounted] = useState(false);
+  const [wordIndex, setWordIndex] = useState(0);
+  const mouse = useRef({ x: 0, y: 0 });
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const smx = useSpring(mx, { stiffness: 60, damping: 18 });
+  const smy = useSpring(my, { stiffness: 60, damping: 18 });
+  const textX = useTransform(smx, (v) => v * 18);
+  const textY = useTransform(smy, (v) => v * 10);
+
+  useEffect(() => {
+    setMounted(true);
+    const id = setInterval(() => setWordIndex((i) => (i + 1) % HERO_WORDS.length), 2800);
+    const onMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = (e.clientY / window.innerHeight) * 2 - 1;
+      mouse.current.x = x;
+      mouse.current.y = -y;
+      mx.set(x);
+      my.set(-y);
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => { clearInterval(id); window.removeEventListener("mousemove", onMove); };
+  }, [mx, my]);
+
+  return (
+    <section
+      className="relative w-full overflow-hidden"
+      style={{ height: "100vh", backgroundColor: "var(--bg-primary)" }}
+    >
+      <Navbar active="HOME" />
+
+      <div className="absolute inset-0 z-10">
+        {mounted && (
+          <Suspense fallback={null}>
+            <HeroScene mouse={mouse} />
+          </Suspense>
+        )}
+      </div>
+
+      <motion.h1
+        style={{ x: textX, y: textY, mixBlendMode: "difference" }}
+        className="pointer-events-none absolute inset-0 z-20 flex select-none items-center justify-center"
+      >
+        <span
+          key={wordIndex}
+          className="block text-center font-extralight leading-[0.85] animate-[fadeWord_2.8s_ease-in-out_infinite]"
+          style={{ fontSize: "clamp(80px, 18vw, 280px)", letterSpacing: "-0.04em", fontFamily: "'Inter','Helvetica Neue',sans-serif", color: "#FFFFFF" }}
+        >
+          {HERO_WORDS[wordIndex]}
+        </span>
+      </motion.h1>
+
+      <div className="pointer-events-none absolute bottom-8 right-6 z-30 md:right-12">
+        <div className="flex items-center gap-3">
+          <span className="block h-px w-12 origin-left animate-[scrollLine_2s_ease-in-out_infinite]" style={{ backgroundColor: "#FF6B00" }} />
+        </div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: "@keyframes fadeWord{0%,100%{opacity:0;transform:translateY(20px);filter:blur(8px)}15%,85%{opacity:1;transform:translateY(0);filter:blur(0)}}@keyframes scrollLine{0%,100%{transform:scaleX(0.2)}50%{transform:scaleX(1)}}" }} />
+    </section>
+  );
+}
+
+// -- Index Component ----------------------------------------------------
+
 function Index() {
   return (
     <main>
-      <Hero3DHub />
-      <InnovateSection />
-      <InteractiveShowcase />
+      <HeroSection />
+      <ContactSection />
+      <ProductsStory showNav={false} showCircularText={false} />
+      <About showNav={false} />
     </main>
   );
 }

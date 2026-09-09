@@ -12,7 +12,10 @@ export default defineConfig({
   },
   vite: {
     optimizeDeps: {
-      include: ["three", "@react-three/fiber", "@react-three/drei", "framer-motion", "gsap"],
+      include: ["three", "@react-three/fiber", "@react-three/drei", "framer-motion", "gsap", "ogl"],
+    },
+    ssr: {
+      noExternal: ["ogl"],
     },
   },
 });
