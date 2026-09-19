@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { addToCart, toggleWishlist, getWishlist, getCartCount } from "@/lib/store";
+import { addToCart, toggleWishlist, getWishlist, getCartCount, getUser, logout } from "@/lib/store";
 import { getProducts, Product, getCategories } from "@/lib/products";
 
 export const Route = createFileRoute("/shop")({
@@ -215,6 +215,7 @@ function Shop() {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [added, setAdded] = useState<number | null>(null);
+  const [user, setUser] = useState(getUser());
 
   const [categories, setCategories] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState("ALL");
@@ -227,20 +228,24 @@ function Shop() {
     setWishlist(getWishlist());
     setCartCount(getCartCount());
     setCategories(getCategories());
+    setUser(getUser());
 
     const onCart     = () => setCartCount(getCartCount());
     const onWish     = () => setWishlist([...getWishlist()]);
+    const onAuth     = () => setUser(getUser());
     
     window.addEventListener("cart-updated",     onCart);
     window.addEventListener("wish-updated",     onWish);
     window.addEventListener("products-updated", refreshProducts);
     window.addEventListener("categories-updated", refreshCategories);
+    window.addEventListener("auth-updated",     onAuth);
 
     return () => {
       window.removeEventListener("cart-updated",     onCart);
       window.removeEventListener("wish-updated",     onWish);
       window.removeEventListener("products-updated", refreshProducts);
       window.removeEventListener("categories-updated", refreshCategories);
+      window.removeEventListener("auth-updated",     onAuth);
     };
   }, []);
 
@@ -283,6 +288,54 @@ function Shop() {
               </span>
             )}
           </Link>
+          {user ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {user.email.trim().toLowerCase() === "admin@1234" && (
+                <Link
+                  to="/admin"
+                  style={{
+                    background: "#FF6B00",
+                    color: "#fff",
+                    textDecoration: "none",
+                    padding: "6px 14px",
+                    borderRadius: 9999,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.18em",
+                  }}
+                >
+                  ADMIN PANEL
+                </Link>
+              )}
+              {user.avatar && (
+                <img
+                  src={user.avatar}
+                  alt={user.firstName}
+                  style={{ width: 24, height: 24, borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(0,0,0,0.1)" }}
+                />
+              )}
+              <span style={{ fontSize: 11, fontWeight: 500, color: "var(--text-primary)" }}>Hello, {user.firstName}</span>
+              <button
+                onClick={() => { logout(); setUser(null); window.dispatchEvent(new Event("auth-updated")); }}
+                style={{
+                  background: "none",
+                  border: "1px solid rgba(0,0,0,0.15)",
+                  borderRadius: 9999,
+                  padding: "5px 12px",
+                  fontSize: 10,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  color: "var(--text-muted)",
+                }}
+              >
+                LOGOUT
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" style={{ background: "#0a0a0a", color: "#fff", textDecoration: "none", padding: "8px 16px", borderRadius: 9999, fontSize: 10, fontWeight: 600, letterSpacing: "0.18em" }}>
+              LOGIN / SIGN UP
+            </Link>
+          )}
         </div>
       </nav>
 

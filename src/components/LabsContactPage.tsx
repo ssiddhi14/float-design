@@ -200,8 +200,8 @@ const STATS = [
 
 const INFO = [
   { icon: "01", title: "Email Us",  detail: "hello@3dhub.studio",  sub: "We reply within 24 hours" },
-  { icon: "02", title: "Call Us",   detail: "+91 98765 43210",     sub: "Mon - Fri, 10am - 7pm IST" },
-  { icon: "03", title: "Visit Us",  detail: "Mumbai, India",       sub: "By appointment only" },
+  { icon: "02", title: "Call Us",   detail: "+91 98290 51866",     sub: "Mon - Fri, 10am - 7pm IST" },
+  { icon: "03", title: "Visit Us",  detail: "Jaipur, India",       sub: "By appointment only" },
 ];
 
 export default function LabsContactPage({ activePage = "labs" }: { activePage?: string }) {
@@ -368,7 +368,7 @@ export default function LabsContactPage({ activePage = "labs" }: { activePage?: 
           <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.28em", color: "var(--text-primary)" }}>HUB</span>
         </Link>
         <p style={{ fontSize: 10, fontWeight: 300, color: "rgba(10,10,20,0.35)", margin: 0, letterSpacing: "0.1em" }}>2026 3D HUB Studio. Think it. Design it. Print it.</p>
-        <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.22em", color: "var(--text-soft)", textTransform: "uppercase", margin: 0 }}>MUMBAI, INDIA</p>
+        <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.22em", color: "var(--text-soft)", textTransform: "uppercase", margin: 0 }}>JAIPUR, INDIA</p>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: "@keyframes orbFloat1{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-54%) scale(1.06)}}@keyframes orbFloat2{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}@keyframes orbFloat3{0%,100%{transform:translateY(0)}60%{transform:translateY(-14px)}}@keyframes slideRight{0%,100%{transform:scaleX(0.3);opacity:0.4}50%{transform:scaleX(1);opacity:1}}" }} />

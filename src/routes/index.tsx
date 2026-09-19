@@ -4,7 +4,8 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import ContactSection from "@/components/ContactSection";
 import ProductsStory from "@/components/ProductsStory";
 import { About } from "@/routes/about";
-import { getUser, logout, getCartCount } from "@/lib/store";
+import { getUser, logout, getCartCount, addToCart } from "@/lib/store";
+import { getProducts, Product } from "@/lib/products";
 import { getTheme, toggleTheme, applyTheme } from "@/lib/theme";
 
 const HeroScene = lazy(() => import("@/components/HeroScene"));
@@ -107,6 +108,22 @@ function Navbar({ active }: { active?: string }) {
         {/* Auth */}
         {user ? (
           <div className="flex items-center gap-2">
+            {user.email.trim().toLowerCase() === "admin@1234" && (
+              <Link
+                to="/admin"
+                className="rounded-full px-3 py-1.5 text-[10px] font-bold tracking-[0.18em] transition-colors"
+                style={{ background: "#FF6B00", color: "#fff", textDecoration: "none" }}
+              >
+                ADMIN PANEL
+              </Link>
+            )}
+            {user.avatar && (
+              <img
+                src={user.avatar}
+                alt={user.firstName}
+                className="h-6 w-6 rounded-full object-cover border border-black/10"
+              />
+            )}
             <span className="text-[12px] font-medium tracking-[0.08em] text-black">Hello, {user.firstName}</span>
             <button
               onClick={() => { logout(); setUser(null); window.dispatchEvent(new Event("auth-updated")); }}
@@ -194,12 +211,110 @@ function HeroSection() {
   );
 }
 
+function FeaturedProductsSection() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [added, setAdded] = useState<number | null>(null);
+
+  const refreshProducts = () => setProducts([...getProducts()]);
+
+  useEffect(() => {
+    refreshProducts();
+    window.addEventListener("products-updated", refreshProducts);
+    return () => window.removeEventListener("products-updated", refreshProducts);
+  }, []);
+
+  if (products.length === 0) return null;
+
+  const handleCart = (id: number) => {
+    addToCart(id);
+    setAdded(id);
+    setTimeout(() => setAdded(null), 1400);
+  };
+
+  return (
+    <section style={{ padding: "100px 8vw", background: "var(--bg-primary)", position: "relative", zIndex: 10 }}>
+      <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.42em", color: "rgba(255,107,0,0.8)", textTransform: "uppercase", margin: "0 0 14px" }}>
+          OUR COLLECTION
+        </p>
+        <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "clamp(2.5rem, 5vw, 4.5rem)", fontWeight: 300, letterSpacing: "-0.03em", color: "var(--text-primary)", margin: "0 0 12px", lineHeight: 1.1 }}>
+          Featured <em style={{ fontStyle: "italic", color: "#FF6B00" }}>3D creations.</em>
+        </h2>
+        <p style={{ fontSize: 14, fontWeight: 300, color: "var(--text-muted)", margin: 0 }}>
+          Explore our latest 3D printed components, prototypes and manufacturing models.
+        </p>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24, maxWidth: 1200, margin: "0 auto 48px" }}>
+        {products.slice(0, 6).map((p) => {
+          const pImage = p.images && p.images.length > 0 ? p.images[0] : p.image;
+          return (
+            <div key={p.id} style={{
+              background: "var(--card-bg, rgba(255,255,255,0.65))",
+              backdropFilter: "blur(18px)",
+              border: "1px solid var(--card-border, rgba(0,0,0,0.08))",
+              borderRadius: 18,
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.04)",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+            }}>
+              <div style={{ height: 200, background: "#e8edf5", position: "relative", overflow: "hidden" }}>
+                {pImage ? (
+                  <img src={pImage} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                ) : (
+                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#888", fontSize: 12 }}>No image</div>
+                )}
+                {p.badge && (
+                  <span style={{ position: "absolute", top: 12, left: 12, background: p.badge === "NEW" ? "#FF6B00" : "#0a0a0a", color: "#fff", fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", padding: "4px 10px", borderRadius: 6, zIndex: 1 }}>
+                    {p.badge}
+                  </span>
+                )}
+              </div>
+              <div style={{ padding: "20px 22px 22px", flex: 1, display: "flex", flexDirection: "column" }}>
+                <p style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.24em", color: "rgba(255,107,0,0.7)", textTransform: "uppercase", margin: "0 0 6px" }}>{p.category}</p>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 8px", letterSpacing: "-0.01em" }}>{p.name}</h3>
+                <p style={{ fontSize: 12, fontWeight: 300, color: "var(--text-muted)", margin: "0 0 18px", lineHeight: 1.6, flex: 1 }}>{p.desc}</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: "1.4rem", fontWeight: 400, color: "var(--text-primary)" }}>
+                    Rs. {p.price.toLocaleString()}
+                  </span>
+                  <button
+                    onClick={() => handleCart(p.id)}
+                    style={{ padding: "9px 18px", background: added === p.id ? "#27ae60" : "#0a0a0a", color: "#fff", border: "none", borderRadius: 9999, fontSize: 10, fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase", cursor: "pointer", fontFamily: "'Plus Jakarta Sans',sans-serif", transition: "background 0.25s ease" }}
+                  >
+                    {added === p.id ? "Added!" : "+ Cart"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ textAlign: "center" }}>
+        <Link to="/shop" style={{
+          padding: "16px 44px", background: "#0a0a0a", color: "#fff",
+          borderRadius: 9999, fontSize: 11, fontWeight: 600,
+          letterSpacing: "0.22em", textTransform: "uppercase",
+          textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10,
+          boxShadow: "0 20px 60px rgba(10,10,20,0.16)",
+        }}>
+          Explore Full Shop Collection <span style={{ color: "#FF6B00" }}>&rarr;</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 // -- Index Component ----------------------------------------------------
 
 function Index() {
   return (
     <main>
       <HeroSection />
+      <FeaturedProductsSection />
       <ContactSection />
       <ProductsStory showNav={false} showCircularText={false} />
       <About showNav={false} />

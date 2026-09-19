@@ -24,12 +24,12 @@ export const getProducts = (): Product[] => {
     const parsed: Product[] = s ? JSON.parse(s) : DEFAULT_PRODUCTS;
     return parsed.map(p => ({
       ...p,
-      images: Array.isArray(p.images) && p.images.length > 0 ? p.images : [p.image || "/pragya.jpeg"]
+      images: Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.image ? [p.image] : [])
     }));
   } catch {
     return DEFAULT_PRODUCTS.map(p => ({
       ...p,
-      images: Array.isArray(p.images) && p.images.length > 0 ? p.images : [p.image || "/pragya.jpeg"]
+      images: Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.image ? [p.image] : [])
     }));
   }
 };
@@ -61,7 +61,7 @@ export const deleteProduct = (id: number) => {
 };
 
 export const isAdmin = (email: string, password: string) =>
-  email === "admin@1234" && password === "admin@1234";
+  email.trim().toLowerCase() === "admin@1234" && password.trim() === "admin@1234";
 
 const DEFAULT_CATEGORIES = ["Prototyping", "Manufacturing", "Engineering", "Materials"];
 

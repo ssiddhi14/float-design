@@ -16,7 +16,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800): Promise<string> => {
+const compressImage = (base64Str: string, maxWidth = 600, maxHeight = 600): Promise<string> => {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = base64Str;
@@ -42,7 +42,7 @@ const compressImage = (base64Str: string, maxWidth = 800, maxHeight = 800): Prom
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/jpeg", 0.7));
+        resolve(canvas.toDataURL("image/jpeg", 0.65));
       } else {
         resolve(base64Str);
       }
@@ -60,15 +60,16 @@ function AdminPage() {
   const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
 
   useEffect(() => {
-    if (!user || user.email !== "admin@1234") {
+    const u = getUser();
+    if (!u || u.email.trim().toLowerCase() !== "admin@1234") {
       nav({ to: "/login" });
     }
-  }, []);
+  }, [nav]);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState({ name: "", category: "", price: "", desc: "", badge: "" });
-  const [images, setImages] = useState<string[]>(["/pragya.jpeg"]);
+  const [images, setImages] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -114,9 +115,6 @@ function AdminPage() {
         compressImage(src).then((compressedSrc) => {
           setImages((prev) => {
             if (prev.length >= 4) return prev;
-            if (prev.length === 1 && prev[0] === "/pragya.jpeg") {
-              return [compressedSrc];
-            }
             return [...prev, compressedSrc];
           });
         });
@@ -128,10 +126,6 @@ function AdminPage() {
   };
 
   const removeImage = (index: number) => {
-    if (images.length <= 1) {
-      alert("Minimum 1 image is required.");
-      return;
-    }
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -155,7 +149,7 @@ function AdminPage() {
       return;
     }
     if (images.length === 0) {
-      alert("At least one image is required.");
+      alert("At least 1 product image is required.");
       return;
     }
     const success = addProduct({
@@ -169,7 +163,7 @@ function AdminPage() {
     });
     if (success) {
       setForm({ name: "", category: "", price: "", desc: "", badge: "" });
-      setImages(["/pragya.jpeg"]);
+      setImages([]);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     }
@@ -313,33 +307,31 @@ function AdminPage() {
                       <div key={idx} style={{ position: "relative", height: 100, borderRadius: 10, overflow: "hidden", border: "1px solid rgba(0,0,0,0.08)", background: "#e8edf5" }}>
                         <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
 
-                        {images.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeImage(idx)}
-                            style={{
-                              position: "absolute",
-                              top: 6,
-                              right: 6,
-                              width: 24,
-                              height: 24,
-                              borderRadius: "50%",
-                              background: "rgba(220, 53, 69, 0.9)",
-                              border: "none",
-                              color: "#fff",
-                              fontSize: 12,
-                              fontWeight: "bold",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              lineHeight: 1,
-                              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                            }}
-                          >
-                            &times;
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          style={{
+                            position: "absolute",
+                            top: 6,
+                            right: 6,
+                            width: 24,
+                            height: 24,
+                            borderRadius: "50%",
+                            background: "rgba(220, 53, 69, 0.9)",
+                            border: "none",
+                            color: "#fff",
+                            fontSize: 12,
+                            fontWeight: "bold",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            lineHeight: 1,
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                          }}
+                        >
+                          &times;
+                        </button>
 
                         {idx === 0 && (
                           <span style={{ position: "absolute", bottom: 6, left: 6, background: "rgba(10,10,10,0.75)", color: "#fff", fontSize: 8, fontWeight: 600, letterSpacing: "0.1em", padding: "2px 6px", borderRadius: 4, backdropFilter: "blur(4px)" }}>

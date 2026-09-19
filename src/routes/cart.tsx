@@ -525,7 +525,7 @@ function CartPage() {
 
                 <div>
                   <label style={labelStyle}>Phone Number *</label>
-                  <input style={inputStyle} type="tel" placeholder="+91 98765 43210" value={shipping.phone} onChange={(e) => setShipping({ ...shipping, phone: e.target.value })} required />
+                  <input style={inputStyle} type="tel" placeholder="+91 98290 51866" value={shipping.phone} onChange={(e) => setShipping({ ...shipping, phone: e.target.value })} required />
                 </div>
 
                 <div>
@@ -536,7 +536,7 @@ function CartPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                   <div>
                     <label style={labelStyle}>City *</label>
-                    <input style={inputStyle} placeholder="Mumbai" value={shipping.city} onChange={(e) => setShipping({ ...shipping, city: e.target.value })} required />
+                    <input style={inputStyle} placeholder="Jaipur" value={shipping.city} onChange={(e) => setShipping({ ...shipping, city: e.target.value })} required />
                   </div>
                   <div>
                     <label style={labelStyle}>State *</label>
